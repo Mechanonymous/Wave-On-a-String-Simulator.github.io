@@ -74,7 +74,7 @@
       margin: 0 auto 25px auto;
       display: block;
       box-shadow: inset 0 2px 4px 0 rgb(0 0 0 / 0.2);
-      cursor: grab;
+      cursor: crosshair;
     }
     
     canvas:active {
@@ -358,20 +358,31 @@
       endBtn.textContent = "End: " + (endMode.charAt(0).toUpperCase() + endMode.slice(1));
     };
 
-    // Canvas Mouse Interactions
-    canvas.addEventListener("mousedown", e => { if (mode === "manual") isDragging = true; });
-    canvas.addEventListener("mouseup", () => { isDragging = false; });
-    canvas.addEventListener("mouseleave", () => { isDragging = false; });
+    // --- Enhanced Mouse Interactions ---
+    function updateDrive(e) {
+      const rect = canvas.getBoundingClientRect();
+      const mouseOffset = e.clientY - rect.top - centerY;
+      // 1:1 Pixel tracking, clamped slightly inside canvas to prevent node disappearance
+      drive = Math.max(-centerY + 10, Math.min(centerY - 10, mouseOffset));
+    }
+
+    canvas.addEventListener("mousedown", e => { 
+      if (mode === "manual") {
+        isDragging = true;
+        updateDrive(e);
+      }
+    });
     
     canvas.addEventListener("mousemove", e => {
       if (mode === "manual" && isDragging) {
-        const rect = canvas.getBoundingClientRect();
-        let targetDrive = (e.clientY - rect.top - centerY) * 1.5;
-        drive = Math.max(-centerY * 1.5, Math.min(centerY * 1.5, targetDrive));
+        updateDrive(e);
       }
     });
 
-    // Physics Engine core
+    canvas.addEventListener("mouseup", () => { isDragging = false; });
+    canvas.addEventListener("mouseleave", () => { isDragging = false; });
+    
+    // --- Physics Engine core ---
     function updateWave() {
       const speed = parseFloat(speedSlider.value);
       const A = parseFloat(ampSlider.value);
@@ -388,9 +399,10 @@
       if (mode === "manual") {
         if (isDragging) {
           y[0] = drive;
-          vy[0] = 0;
+          vy[0] = 0; // Hold steady while being dragged
         } else {
-          drive *= (1 - (damp * 0.8 + 0.01)); 
+          // Smoothly settle the driven anchor back to equilibrium based on damping
+          drive *= (1 - (damp + 0.02)); 
           y[0] = drive;
         }
       } else if (mode === "oscillate") {
