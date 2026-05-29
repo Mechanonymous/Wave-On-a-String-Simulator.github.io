@@ -113,7 +113,6 @@
       cursor: pointer;
     }
 
-    /* Distinct styling for the Speed slider to separate it from wave properties */
     .control.speed-control label span {
       color: var(--accent);
     }
@@ -172,7 +171,7 @@
     <h2>Wave on a String</h2>
     
     <div class="formula-section">
-      <p>1D Classical Wave Equation</p>
+      <p>1D Finite Difference Wave Equation</p>
       <div class="equation">
         &part;<sup>2</sup>y / &part;t<sup>2</sup> = c<sup>2</sup> ( &part;<sup>2</sup>y / &part;x<sup>2</sup> )
       </div>
@@ -219,7 +218,8 @@
     const ctx = canvas.getContext("2d");
     const descBox = document.getElementById("description");
 
-    const N = 200;
+    // Reduced N from 200 to 100 to make the individual nodes visually distinct
+    const N = 100; 
     const dx = canvas.width / (N - 1);
     const centerY = canvas.height / 2;
 
@@ -230,7 +230,7 @@
     let endMode = "fixed"; 
     let drive = 0;
     let isDragging = false;
-    let simTime = 0; // Independent time tracker
+    let simTime = 0; 
 
     // UI Elements
     const speedSlider = document.getElementById("speedSlider");
@@ -254,7 +254,6 @@
     
     sliders.forEach((slider, idx) => {
       slider.addEventListener('input', (e) => {
-        // Add an 'x' exclusively for the speed multiplier format
         labels[idx].textContent = e.target.value + (idx === 0 ? "x" : ""); 
       });
     });
@@ -284,8 +283,6 @@
 
     // Canvas Mouse Interactions
     canvas.addEventListener("mousedown", e => { if (mode === "manual") isDragging = true; });
-    
-    // Notice: drive is NO LONGER instantly forced to 0 on release. This allows natural damping.
     canvas.addEventListener("mouseup", () => { isDragging = false; });
     canvas.addEventListener("mouseleave", () => { isDragging = false; });
     
@@ -293,7 +290,6 @@
       if (mode === "manual" && isDragging) {
         const rect = canvas.getBoundingClientRect();
         let targetDrive = (e.clientY - rect.top - centerY) * 1.5;
-        // Clamp the manual drive so the wave doesn't break out of visual bounds
         drive = Math.max(-centerY * 1.5, Math.min(centerY * 1.5, targetDrive));
       }
     });
@@ -309,18 +305,14 @@
       const c = 100;
       const yOld = [...y];
       
-      // dt is scaled by the Speed Slider for Slow/Fast motion
       const dt = 0.016 * speed; 
       simTime += dt;
 
-      // Handle the left boundary (source)
       if (mode === "manual") {
         if (isDragging) {
           y[0] = drive;
           vy[0] = 0;
         } else {
-          // When released, the drive smoothly settles back to 0.
-          // Higher damping values cause it to settle back faster and kill residual energy.
           drive *= (1 - (damp * 0.8 + 0.01)); 
           y[0] = drive;
         }
@@ -331,7 +323,7 @@
         y[0] = A * pulse;
       }
 
-      // 1D Wave Equation approximation loop
+      // 1D Wave Equation discrete loop
       for (let i = 1; i < N - 1; i++) {
         const d2ydx2 = (yOld[i+1] - 2*yOld[i] + yOld[i-1]) / (dx*dx);
         const force = c*c*d2ydx2 - damp*vy[i];
@@ -339,7 +331,6 @@
         y[i] += vy[i]*dt;
       }
 
-      // Handle the right boundary
       if (endMode === "fixed") {
         y[N-1] = 0;
       } else if (endMode === "loose") {
@@ -349,22 +340,21 @@
       }
     }
 
-    // Canvas Rendering
+    // Node-Based Rendering
     function renderWave() {
       ctx.clearRect(0, 0, canvas.width, canvas.height);
       
       // Draw equilibrium center line
-      ctx.strokeStyle = "rgba(255, 255, 255, 0.1)";
+      ctx.strokeStyle = "rgba(255, 255, 255, 0.15)";
       ctx.lineWidth = 1;
       ctx.beginPath();
       ctx.moveTo(0, centerY);
       ctx.lineTo(canvas.width, centerY);
       ctx.stroke();
 
-      // Draw the wave
-      ctx.strokeStyle = "#38bdf8"; 
-      ctx.lineWidth = 3;
-      ctx.lineJoin = "round";
+      // Draw faint physical string connection
+      ctx.strokeStyle = "rgba(56, 189, 248, 0.3)"; 
+      ctx.lineWidth = 2;
       ctx.beginPath();
       for (let i = 0; i < N; i++) {
         const x = i * dx;
@@ -373,6 +363,22 @@
         else ctx.lineTo(x, yPoint);
       }
       ctx.stroke();
+
+      // Draw the mathematical calculation nodes
+      ctx.fillStyle = "#e0f2fe"; 
+      ctx.strokeStyle = "#0284c7"; 
+      ctx.lineWidth = 1.5;
+
+      for (let i = 0; i < N; i++) {
+        const x = i * dx;
+        const yPoint = centerY + y[i];
+        
+        ctx.beginPath();
+        // Small circles acting as discrete calculation points
+        ctx.arc(x, yPoint, 3.5, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.stroke();
+      }
     }
 
     // Dynamic Accessibility/UI Text Generation
@@ -390,11 +396,11 @@
         text += "The generator is emitting periodic triangular pulses. ";
       }
       
-      text += `The string is currently ${isStill ? "at rest" : "in motion"}. `;
+      text += `The discrete nodes are currently ${isStill ? "at rest" : "in motion"}. `;
 
-      if (endMode === "fixed") text += "The right end is fixed, causing waves to invert upon reflection.";
-      else if (endMode === "loose") text += "The right end is attached to a loose sliding ring.";
-      else text += "The right end perfectly absorbs the wave, simulating an infinite boundary.";
+      if (endMode === "fixed") text += "The right node is locked, causing waves to invert upon reflection.";
+      else if (endMode === "loose") text += "The right node is attached to a loose sliding ring.";
+      else text += "The right node is mathematically open, simulating an infinite boundary.";
 
       if (speed !== 1.0) {
         text += ` <em>(Simulation running at ${speed}x speed)</em>`;
