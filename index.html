@@ -1,323 +1,498 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <title>Wave on a String — Velocity Driven Source</title>
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <meta charset="UTF-8">
+  <title>Wave on a String Simulation</title>
   <style>
+    :root {
+      --primary: #0284c7;
+      --primary-hover: #0369a1;
+      --bg-color: #f8fafc;
+      --card-bg: #ffffff;
+      --text-main: #0f172a;
+      --text-muted: #64748b;
+      --accent: #8b5cf6;
+    }
+
     body {
-      font-family: system-ui, -apple-system, "Segoe UI", Roboto, Arial;
+      font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+      background: var(--bg-color);
+      color: var(--text-main);
       margin: 0;
+      padding: 40px 20px;
       display: flex;
       flex-direction: column;
-      height: 100vh;
       align-items: center;
     }
-    header { padding:12px 16px; background:#0b5; color:#012; font-weight:600; width:100%; box-sizing:border-box; }
-    #controls { display:flex; gap:12px; padding:12px; align-items:center; flex-wrap:wrap; background:#f6f6f6; width:100%; box-sizing:border-box; }
-    label { font-size:13px; color:#222; }
-    canvas { background: #111; display:block; width:100%; max-width: 900px; height:60vh; cursor: crosshair; }
-    canvas:active { cursor: grabbing; }
-    .btn { padding:8px 12px; border-radius:6px; border:1px solid #ccc; background:#fff; cursor:pointer; }
-    .btn.primary { background:#0b5; color:#fff; border-color:#089; }
-    .small { font-size:13px; padding:6px 8px; }
-    .group { display:flex; gap:8px; align-items:center; }
-    .range { width:180px; }
-    footer { padding:12px; font-size:14px; color:#444; background:#fafafa; margin-top:auto; width:100%; box-sizing:border-box; text-align: center; }
+
+    .container {
+      max-width: 900px;
+      width: 100%;
+      background: var(--card-bg);
+      border-radius: 12px;
+      box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+      padding: 30px;
+      box-sizing: border-box;
+    }
+
+    h2 {
+      text-align: center;
+      margin-top: 0;
+      color: var(--primary);
+      font-size: 2rem;
+    }
+
+    .formula-section {
+      background: #f1f5f9;
+      padding: 15px;
+      border-radius: 8px;
+      text-align: center;
+      margin-bottom: 25px;
+      border-left: 4px solid var(--primary);
+    }
+
+    .formula-section p {
+      margin: 0 0 5px 0;
+      font-weight: 600;
+      color: var(--text-main);
+    }
+
+    .equation {
+      font-family: 'Times New Roman', Times, serif;
+      font-size: 1.3rem;
+      font-style: italic;
+      color: #334155;
+      letter-spacing: 1px;
+    }
+
+    canvas {
+      width: 100%;
+      max-width: 840px;
+      height: 200px;
+      border-radius: 8px;
+      background: #1e293b;
+      margin: 0 auto 25px auto;
+      display: block;
+      box-shadow: inset 0 2px 4px 0 rgb(0 0 0 / 0.2);
+      cursor: grab;
+    }
+    
+    canvas:active {
+      cursor: grabbing;
+    }
+
+    .button-group {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      justify-content: center;
+      margin-bottom: 25px;
+    }
+
+    button {
+      background: var(--text-muted);
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: 600;
+      transition: all 0.2s;
+    }
+
+    button:hover {
+      background: #475569;
+    }
+
+    button.active {
+      background: var(--primary);
+      box-shadow: 0 4px 6px -1px rgb(2 132 199 / 0.4);
+    }
+
+    button#resetBtn {
+      background: #ef4444;
+    }
+    button#resetBtn:hover {
+      background: #dc2626;
+    }
+
+    /* Grid Layout for Controls */
+    .controls-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 20px;
+      margin-bottom: 25px;
+      background: #f8fafc;
+      padding: 20px;
+      border-radius: 8px;
+      align-items: end; /* Aligns table nicely with sliders */
+    }
+
+    @media (min-width: 800px) {
+      .controls-grid {
+        grid-template-columns: repeat(4, 1fr); /* Force 4 columns on desktop */
+      }
+      .data-table-wrapper {
+        grid-column: 2 / 5; /* Span columns 2, 3, and 4 on row 2 */
+      }
+    }
+
+    .control {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .control label {
+      font-weight: 600;
+      margin-bottom: 8px;
+      font-size: 0.9rem;
+      display: flex;
+      justify-content: space-between;
+    }
+
+    .control label span {
+      color: var(--primary);
+    }
+
+    input[type=range] {
+      width: 100%;
+      cursor: pointer;
+    }
+
+    .control.speed-control label span {
+      color: var(--accent);
+    }
+    .control.speed-control input[type=range] {
+      accent-color: var(--accent);
+    }
+
+    /* Inline Data Table inside the Grid */
+    .data-table-wrapper {
+      width: 100%;
+    }
+    
+    .inline-data-table {
+      width: 100%;
+      border-collapse: collapse;
+      background: #ffffff;
+      border: 1px solid #cbd5e1;
+      border-radius: 6px;
+      overflow: hidden;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+    }
+    
+    .inline-data-table th, .inline-data-table td {
+      padding: 8px 10px;
+      text-align: center;
+      font-size: 0.85rem;
+    }
+    
+    .inline-data-table th {
+      background: #e2e8f0;
+      color: #475569;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      border-bottom: 1px solid #cbd5e1;
+    }
+    
+    .inline-data-table td {
+      font-family: 'Courier New', Courier, monospace;
+      font-size: 1.1rem;
+      font-weight: bold;
+      color: var(--primary);
+    }
+
+    #description {
+      font-size: 0.95rem;
+      color: var(--text-muted);
+      text-align: center;
+      line-height: 1.6;
+      padding-top: 20px;
+      border-top: 1px solid #e2e8f0;
+    }
   </style>
 </head>
 <body>
-  <header>Wave on a String — Interactive Simulation</header>
 
-  <div id="controls">
-    <div class="group">
-      <button id="playPause" class="btn primary">Pause</button>
-      <button id="reset" class="btn">Reset</button>
+  <div class="container">
+    <h2>Wave on a String</h2>
+    
+    <div class="formula-section">
+      <p>1D Finite Difference Wave Equation</p>
+      <div class="equation">
+        &part;<sup>2</sup>y / &part;t<sup>2</sup> = c<sup>2</sup> ( &part;<sup>2</sup>y / &part;x<sup>2</sup> )
+      </div>
     </div>
 
-    <div class="group">
-      <label for="damping">Damping</label>
-      <input id="damping" class="range" type="range" min="0" max="0.1" step="0.001" value="0.01">
-      <span id="dampingVal">0.010</span>
-      <button id="dampingToggle" class="btn small primary">On</button>
+    <canvas id="waveCanvas" width="840" height="200"></canvas>
+
+    <div class="button-group">
+      <button id="manualBtn" class="mode-btn active">Manual Mode</button>
+      <button id="oscBtn" class="mode-btn">Oscillate</button>
+      <button id="pulseBtn" class="mode-btn">Pulse</button>
+      <button id="endBtn">End: Fixed</button>
+      <button id="resetBtn">Restart String</button>
     </div>
 
-    <div class="group">
-      <label>Source</label>
-      <button id="manualBtn" class="btn small primary">Manual (Drive Edge)</button>
-      <button id="autoBtn" class="btn small">Automatic</button>
-      <label for="freq" style="margin-left:8px">Freq</label>
-      <input id="freq" type="range" min="0.5" max="10" step="0.1" value="2" class="range">
-      <span id="freqVal">2.0 Hz</span>
+    <div class="controls-grid">
+      <div class="control speed-control">
+        <label>Sim Speed <span id="speedVal">1.0x</span></label>
+        <input type="range" id="speedSlider" min="0.1" max="2.0" value="1.0" step="0.1" />
+      </div>
+      <div class="control">
+        <label>Amplitude <span id="ampVal">20</span></label>
+        <input type="range" id="ampSlider" min="0" max="40" value="20" />
+      </div>
+      <div class="control">
+        <label>Frequency <span id="freqVal">2.0</span></label>
+        <input type="range" id="freqSlider" min="0" max="5" value="2" step="0.1" />
+      </div>
+      <div class="control">
+        <label>Pulse Width <span id="pulseVal">1.5</span></label>
+        <input type="range" id="pulseSlider" min="0" max="3" value="1.5" step="0.1" />
+      </div>
+      
+      <div class="control">
+        <label>Damping <span id="dampVal">0.035</span></label>
+        <input type="range" id="dampSlider" min="0" max="0.1" value="0.035" step="0.005" />
+      </div>
+
+      <div class="data-table-wrapper">
+        <table class="inline-data-table">
+          <thead>
+            <tr>
+              <th>Amplitude</th>
+              <th>Frequency (Hz)</th>
+              <th>Damping</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td id="tblAmp">20</td>
+              <td id="tblFreq">2.0</td>
+              <td id="tblDamp">0.035</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
     </div>
 
-    <div class="group">
-      <label for="speed">Sim Speed</label>
-      <input id="speed" type="range" min="0.2" max="2.0" step="0.1" value="1" class="range">
-      <span id="speedVal">1.0x</span>
-    </div>
+    <div id="description"></div>
   </div>
 
-  <canvas id="canvas"></canvas>
+  <script>
+    const canvas = document.getElementById("waveCanvas");
+    const ctx = canvas.getContext("2d");
+    const descBox = document.getElementById("description");
 
-  <footer>Click and drag vertically on the canvas to manually drive the wave. Toggle Automatic to inject a sinusoidal velocity source.</footer>
+    const N = 100; 
+    const dx = canvas.width / (N - 1);
+    const centerY = canvas.height / 2;
 
-<script>
-(() => {
-  const canvas = document.getElementById('canvas');
-  const ctx = canvas.getContext('2d', { alpha: false });
+    let y = new Array(N).fill(0);
+    let vy = new Array(N).fill(0);
 
-  // Controls
-  const playPauseBtn = document.getElementById('playPause');
-  const resetBtn = document.getElementById('reset');
-  const dampingSlider = document.getElementById('damping');
-  const dampingVal = document.getElementById('dampingVal');
-  const dampingToggle = document.getElementById('dampingToggle');
-  const manualBtn = document.getElementById('manualBtn');
-  const autoBtn = document.getElementById('autoBtn');
-  const freqSlider = document.getElementById('freq');
-  const freqVal = document.getElementById('freqVal');
-  const speedSlider = document.getElementById('speed');
-  const speedVal = document.getElementById('speedVal');
+    let mode = "manual"; 
+    let endMode = "fixed"; 
+    let drive = 0;
+    let isDragging = false;
+    let simTime = 0; 
 
-  // DPI-aware canvas sizing
-  function resize() {
-    const dpr = window.devicePixelRatio || 1;
-    const cssW = canvas.clientWidth || Math.floor(window.innerWidth * 0.5);
-    const cssH = canvas.clientHeight || Math.floor(window.innerHeight * 0.6);
-    canvas.style.width = cssW + 'px';
-    canvas.style.height = cssH + 'px';
-    canvas.width = Math.floor(cssW * dpr);
-    canvas.height = Math.floor(cssH * dpr);
-    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-  }
-  window.addEventListener('resize', resize);
-  resize();
+    // UI Elements
+    const speedSlider = document.getElementById("speedSlider");
+    const ampSlider = document.getElementById("ampSlider");
+    const freqSlider = document.getElementById("freqSlider");
+    const pulseSlider = document.getElementById("pulseSlider");
+    const dampSlider = document.getElementById("dampSlider");
+    
+    const speedVal = document.getElementById("speedVal");
+    const ampVal = document.getElementById("ampVal");
+    const freqVal = document.getElementById("freqVal");
+    const pulseVal = document.getElementById("pulseVal");
+    const dampVal = document.getElementById("dampVal");
 
-  // Simulation parameters
-  const N = 300;
-  let u = new Float32Array(N);
-  let uPrev = new Float32Array(N);
-  let uNext = new Float32Array(N);
-  const dx = 1;
-  let c = 1.0;
-  let dt = 0.02;
-  let running = true;
-  let damping = parseFloat(dampingSlider.value);
-  let dampingEnabled = true;
-  let manualMode = true;
-  let autoMode = false;
-  let sourceFreq = parseFloat(freqSlider.value);
-  let simSpeed = parseFloat(speedSlider.value);
-  let time = 0;
+    // Table Elements
+    const tblAmp = document.getElementById("tblAmp");
+    const tblFreq = document.getElementById("tblFreq");
+    const tblDamp = document.getElementById("tblDamp");
 
-  // New Variables for requested Damping Behavior
-  let drive = 0;
-  let isDragging = false;
+    const modeBtns = document.querySelectorAll('.mode-btn');
+    const endBtn = document.getElementById("endBtn");
 
-  function reset() {
-    u.fill(0);
-    uPrev.fill(0);
-    uNext.fill(0);
-    time = 0;
-    drive = 0;
-  }
-  reset();
+    // Update value labels and table dynamically
+    const sliders = [speedSlider, ampSlider, freqSlider, pulseSlider, dampSlider];
+    const labels = [speedVal, ampVal, freqVal, pulseVal, dampVal];
+    
+    sliders.forEach((slider, idx) => {
+      slider.addEventListener('input', (e) => {
+        labels[idx].textContent = e.target.value + (idx === 0 ? "x" : ""); 
+        
+        // Target table specifically
+        if (slider.id === "ampSlider") tblAmp.textContent = e.target.value;
+        if (slider.id === "freqSlider") tblFreq.textContent = parseFloat(e.target.value).toFixed(1);
+        if (slider.id === "dampSlider") tblDamp.textContent = parseFloat(e.target.value).toFixed(3);
+      });
+    });
 
-  // Main finite-difference step
-  function step() {
-    const r = (c * dt / dx) ** 2;
+    // Mode Selection Logic
+    function setActiveMode(id, newMode) {
+      mode = newMode;
+      modeBtns.forEach(btn => btn.classList.remove('active'));
+      document.getElementById(id).classList.add('active');
+    }
 
-    // interior updates
-    for (let i = 1; i < N - 1; i++) {
-      uNext[i] = 2 * u[i] - uPrev[i] + r * (u[i+1] - 2*u[i] + u[i-1]);
-      if (dampingEnabled && damping > 0) {
-        const vel = (u[i] - uPrev[i]) / dt;
-        uNext[i] -= damping * vel * dt;
+    document.getElementById("manualBtn").onclick = () => setActiveMode("manualBtn", "manual");
+    document.getElementById("oscBtn").onclick = () => setActiveMode("oscBtn", "oscillate");
+    document.getElementById("pulseBtn").onclick = () => setActiveMode("pulseBtn", "pulse");
+    
+    document.getElementById("resetBtn").onclick = () => { 
+      y.fill(0); 
+      vy.fill(0); 
+      simTime = 0;
+      drive = 0;
+    };
+
+    endBtn.onclick = () => {
+      endMode = endMode === "fixed" ? "loose" : endMode === "loose" ? "no" : "fixed";
+      endBtn.textContent = "End: " + (endMode.charAt(0).toUpperCase() + endMode.slice(1));
+    };
+
+    // Canvas Mouse Interactions
+    canvas.addEventListener("mousedown", e => { if (mode === "manual") isDragging = true; });
+    canvas.addEventListener("mouseup", () => { isDragging = false; });
+    canvas.addEventListener("mouseleave", () => { isDragging = false; });
+    
+    canvas.addEventListener("mousemove", e => {
+      if (mode === "manual" && isDragging) {
+        const rect = canvas.getBoundingClientRect();
+        let targetDrive = (e.clientY - rect.top - centerY) * 1.5;
+        drive = Math.max(-centerY * 1.5, Math.min(centerY * 1.5, targetDrive));
+      }
+    });
+
+    // Physics Engine core
+    function updateWave() {
+      const speed = parseFloat(speedSlider.value);
+      const A = parseFloat(ampSlider.value);
+      const f = parseFloat(freqSlider.value);
+      const damp = parseFloat(dampSlider.value);
+      const pulseW = parseFloat(pulseSlider.value);
+      
+      const c = 100;
+      const yOld = [...y];
+      
+      const dt = 0.016 * speed; 
+      simTime += dt;
+
+      if (mode === "manual") {
+        if (isDragging) {
+          y[0] = drive;
+          vy[0] = 0;
+        } else {
+          drive *= (1 - (damp * 0.8 + 0.01)); 
+          y[0] = drive;
+        }
+      } else if (mode === "oscillate") {
+        y[0] = A * Math.sin(2 * Math.PI * f * simTime);
+      } else if (mode === "pulse") {
+        const pulse = (simTime % 2 < pulseW/2) ? (1 - Math.abs((simTime%1)*2 - 1)) : 0;
+        y[0] = A * pulse;
+      }
+
+      // 1D Wave Equation discrete loop
+      for (let i = 1; i < N - 1; i++) {
+        const d2ydx2 = (yOld[i+1] - 2*yOld[i] + yOld[i-1]) / (dx*dx);
+        const force = c*c*d2ydx2 - damp*vy[i];
+        vy[i] += force*dt;
+        y[i] += vy[i]*dt;
+      }
+
+      if (endMode === "fixed") {
+        y[N-1] = 0;
+      } else if (endMode === "loose") {
+        y[N-1] = y[N-2];
+      } else if (endMode === "no") {
+        y[N-1] = yOld[N-1] - (c*dt/dx) * (yOld[N-1] - yOld[N-2]);
       }
     }
 
-    // Boundary Handling
-    if (autoMode) {
-      const srcVel = Math.sin(2 * Math.PI * sourceFreq * time) * 0.6; 
-      uNext[1] += srcVel * dt;
-      if (N > 3) uNext[2] += srcVel * dt * 0.5;
-      uNext[0] = 0;           
-      uNext[N - 1] = 0;       
-    } else {
-      // Requested Feature: Damped Manual Driver
-      if (isDragging) {
-        uNext[0] = drive;
+    // Node-Based Rendering
+    function renderWave() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      
+      // Draw equilibrium center line
+      ctx.strokeStyle = "rgba(255, 255, 255, 0.15)";
+      ctx.lineWidth = 1;
+      ctx.beginPath();
+      ctx.moveTo(0, centerY);
+      ctx.lineTo(canvas.width, centerY);
+      ctx.stroke();
+
+      // Draw faint physical string connection
+      ctx.strokeStyle = "rgba(56, 189, 248, 0.3)"; 
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      for (let i = 0; i < N; i++) {
+        const x = i * dx;
+        const yPoint = centerY + y[i];
+        if (i === 0) ctx.moveTo(x, yPoint);
+        else ctx.lineTo(x, yPoint);
+      }
+      ctx.stroke();
+
+      // Draw the mathematical calculation nodes
+      ctx.fillStyle = "#e0f2fe"; 
+      ctx.strokeStyle = "#0284c7"; 
+      ctx.lineWidth = 1.5;
+
+      for (let i = 0; i < N; i++) {
+        const x = i * dx;
+        const yPoint = centerY + y[i];
+        
+        ctx.beginPath();
+        // Small circles acting as discrete calculation points
+        ctx.arc(x, yPoint, 3.5, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.stroke();
+      }
+    }
+
+    // Dynamic Accessibility/UI Text Generation
+    function updateDescription() {
+      const speed = parseFloat(speedSlider.value);
+      const isStill = y.every(val => Math.abs(val) < 0.1);
+
+      let text = "<strong>Status:</strong> ";
+      
+      if (mode === "manual") {
+        text += "Interact with the left side of the canvas using your mouse. ";
+      } else if (mode === "oscillate") {
+        text += "The oscillator is generating a continuous sinusoidal wave. ";
       } else {
-        // Smoothly settle the driven end back to equilibrium when mouse is released
-        let effectiveDamp = dampingEnabled ? damping : 0.01;
-        drive *= (1 - (effectiveDamp * 0.8 + 0.01));
-        uNext[0] = drive;
+        text += "The generator is emitting periodic triangular pulses. ";
       }
       
-      // Lock current and prev history arrays at the boundary to act as a solid actuator
-      u[0] = uNext[0];
-      uPrev[0] = uNext[0];
+      text += `The discrete nodes are currently ${isStill ? "at rest" : "in motion"}. `;
 
-      uNext[N - 1] = 0;
+      if (endMode === "fixed") text += "The right node is locked, causing waves to invert upon reflection.";
+      else if (endMode === "loose") text += "The right node is attached to a loose sliding ring.";
+      else text += "The right node is mathematically open, simulating an infinite boundary.";
+
+      if (speed !== 1.0) {
+        text += ` <em>(Simulation running at ${speed}x speed)</em>`;
+      }
+
+      descBox.innerHTML = text;
     }
 
-    // rotate buffers
-    let tmp = uPrev; uPrev = u; u = uNext; uNext = tmp;
-    time += dt * simSpeed;
-  }
-
-  // Drawing routine
-  function draw() {
-    const w = canvas.clientWidth;
-    const h = canvas.clientHeight;
-    ctx.fillStyle = '#111';
-    ctx.fillRect(0, 0, w, h);
-
-    const midY = h * 0.5;
-    ctx.strokeStyle = '#333';
-    ctx.lineWidth = Math.max(1, 1);
-    ctx.beginPath();
-    ctx.moveTo(0, midY);
-    ctx.lineTo(w, midY);
-    ctx.stroke();
-
-    ctx.strokeStyle = '#0ff';
-    ctx.lineWidth = 2;
-    ctx.beginPath();
-    for (let i = 0; i < N; i++) {
-      const x = (i / (N - 1)) * w;
-      // Drawing displacement scaled by 35% of canvas height
-      const y = midY + u[i] * (h * 0.35);
-      if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+    function animate() {
+      updateWave();
+      renderWave();
+      updateDescription();
+      requestAnimationFrame(animate);
     }
-    ctx.stroke();
-
-    // optional nodes
-    ctx.fillStyle = '#0ff';
-    const stepNode = Math.max(1, Math.floor(N / 30));
-    for (let i = 0; i < N; i += stepNode) {
-      const x = (i / (N - 1)) * w;
-      const y = midY + u[i] * (h * 0.35);
-      ctx.beginPath();
-      ctx.arc(x, y, 3, 0, Math.PI * 2);
-      ctx.fill();
-    }
-  }
-
-  // Animation loop
-  function frame() {
-    if (running) {
-      const steps = Math.max(1, Math.round(simSpeed));
-      for (let s = 0; s < steps; s++) step();
-    }
-    draw();
-    requestAnimationFrame(frame);
-  }
-  requestAnimationFrame(frame);
-
-  // Controls wiring
-  playPauseBtn.addEventListener('click', () => {
-    running = !running;
-    playPauseBtn.textContent = running ? 'Pause' : 'Play';
-    playPauseBtn.classList.toggle('primary', running);
-  });
-
-  resetBtn.addEventListener('click', () => {
-    reset();
-  });
-
-  dampingSlider.addEventListener('input', () => {
-    damping = parseFloat(dampingSlider.value);
-    dampingVal.textContent = damping.toFixed(3);
-  });
-
-  dampingToggle.addEventListener('click', () => {
-    dampingEnabled = !dampingEnabled;
-    dampingToggle.textContent = dampingEnabled ? 'On' : 'Off';
-    dampingToggle.classList.toggle('primary', dampingEnabled);
-  });
-
-  manualBtn.addEventListener('click', () => {
-    manualMode = true;
-    autoMode = false;
-    manualBtn.classList.add('primary');
-    autoBtn.classList.remove('primary');
-    drive = 0;
-  });
-
-  autoBtn.addEventListener('click', () => {
-    autoMode = !autoMode;
-    if (autoMode) {
-      manualMode = false;
-      autoBtn.classList.add('primary');
-      manualBtn.classList.remove('primary');
-      time = 0; 
-    } else {
-      autoBtn.classList.remove('primary');
-    }
-  });
-
-  freqSlider.addEventListener('input', () => {
-    sourceFreq = parseFloat(freqSlider.value);
-    freqVal.textContent = sourceFreq.toFixed(1) + ' Hz';
-  });
-
-  speedSlider.addEventListener('input', () => {
-    simSpeed = parseFloat(speedSlider.value);
-    speedVal.textContent = simSpeed.toFixed(1) + 'x';
-  });
-
-  // Updated Mouse Interaction Logic
-  function updateDrive(e) {
-    const rect = canvas.getBoundingClientRect();
-    const y = e.clientY - rect.top;
-    const midY = rect.height * 0.5;
-    
-    // Scale exactly to the drawing logic (h * 0.35)
-    const targetDrive = (y - midY) / (rect.height * 0.35); 
-    // Clamp the drive so extreme mouse movements don't break the physics engine
-    drive = Math.max(-1.5, Math.min(1.5, targetDrive));
-  }
-
-  canvas.addEventListener('pointerdown', (e) => {
-    if (!manualMode) return;
-    isDragging = true;
-    updateDrive(e);
-    canvas.setPointerCapture(e.pointerId);
-  });
-
-  canvas.addEventListener('pointermove', (e) => {
-    if (!isDragging || !manualMode) return;
-    updateDrive(e);
-  });
-
-  canvas.addEventListener('pointerup', (e) => {
-    if (!manualMode) return;
-    isDragging = false;
-    try { canvas.releasePointerCapture(e.pointerId); } catch (err) {}
-  });
-
-  // Keyboard shortcuts
-  window.addEventListener('keydown', (e) => {
-    if (e.key === ' ') {
-      e.preventDefault();
-      playPauseBtn.click();
-    } else if (e.key === 'r') {
-      resetBtn.click();
-    } else if (e.key === 'a') {
-      if(!autoMode) autoBtn.click();
-    } else if (e.key === 'm') {
-      if(!manualMode) manualBtn.click();
-    }
-  });
-
-  // Initial UI state
-  dampingVal.textContent = damping.toFixed(3);
-  freqVal.textContent = sourceFreq.toFixed(1) + ' Hz';
-  speedVal.textContent = simSpeed.toFixed(1) + 'x';
-  manualBtn.classList.add('primary');
-})();
-</script>
+    animate();
+  </script>
 </body>
 </html>
