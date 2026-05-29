@@ -11,6 +11,7 @@
       --card-bg: #ffffff;
       --text-main: #0f172a;
       --text-muted: #64748b;
+      --accent: #8b5cf6;
     }
 
     body {
@@ -69,7 +70,7 @@
       max-width: 840px;
       height: 200px;
       border-radius: 8px;
-      background: #1e293b; /* Dark background for the wave */
+      background: #1e293b;
       margin: 0 auto 25px auto;
       display: block;
       box-shadow: inset 0 2px 4px 0 rgb(0 0 0 / 0.2);
@@ -140,6 +141,12 @@
       box-shadow: 0 4px 6px -1px rgb(2 132 199 / 0.4);
     }
 
+    /* Distinct style for the Slow Motion toggle */
+    button#slowMoBtn.active {
+      background: var(--accent);
+      box-shadow: 0 4px 6px -1px rgb(139 92 246 / 0.4);
+    }
+
     button#resetBtn {
       background: #ef4444;
     }
@@ -176,6 +183,7 @@
       <button id="oscBtn" class="mode-btn">Oscillate</button>
       <button id="pulseBtn" class="mode-btn">Pulse</button>
       <button id="endBtn">End: Fixed</button>
+      <button id="slowMoBtn">Slow Motion: OFF</button>
       <button id="resetBtn">Restart String</button>
     </div>
 
@@ -208,7 +216,6 @@
 
     const N = 200;
     const dx = canvas.width / (N - 1);
-    const dt = 0.016;
     const centerY = canvas.height / 2;
 
     let y = new Array(N).fill(0);
@@ -218,6 +225,8 @@
     let endMode = "fixed"; 
     let drive = 0;
     let isDragging = false;
+    let isSlowMotion = false;
+    let simTime = 0; // Tracks simulated time independent of browser frame rate
 
     // UI Elements
     const ampSlider = document.getElementById("ampSlider");
@@ -232,6 +241,7 @@
 
     const modeBtns = document.querySelectorAll('.mode-btn');
     const endBtn = document.getElementById("endBtn");
+    const slowMoBtn = document.getElementById("slowMoBtn");
 
     // Update value labels on slide
     [ampSlider, freqSlider, pulseSlider, dampSlider].forEach((slider, idx) => {
@@ -252,9 +262,16 @@
     document.getElementById("oscBtn").onclick = () => setActiveMode("oscBtn", "oscillate");
     document.getElementById("pulseBtn").onclick = () => setActiveMode("pulseBtn", "pulse");
     
+    slowMoBtn.onclick = () => {
+      isSlowMotion = !isSlowMotion;
+      slowMoBtn.classList.toggle('active', isSlowMotion);
+      slowMoBtn.textContent = isSlowMotion ? "Slow Motion: ON" : "Slow Motion: OFF";
+    };
+
     document.getElementById("resetBtn").onclick = () => { 
       y.fill(0); 
       vy.fill(0); 
+      simTime = 0; 
     };
 
     endBtn.onclick = () => {
@@ -281,14 +298,17 @@
       const pulseW = parseFloat(pulseSlider.value);
       const c = 100;
       const yOld = [...y];
-      const t = performance.now() / 1000;
+      
+      // Calculate delta time (dt) based on whether slow motion is active (1/4th speed)
+      const dt = isSlowMotion ? 0.004 : 0.016; 
+      simTime += dt;
 
       if (mode==="manual") {
         y[0] = isDragging ? drive : 0;
       } else if (mode==="oscillate") {
-        y[0] = A * Math.sin(2 * Math.PI * f * t);
+        y[0] = A * Math.sin(2 * Math.PI * f * simTime);
       } else if (mode==="pulse") {
-        const pulse = (t % 2 < pulseW/2) ? (1 - Math.abs((t%1)*2 - 1)) : 0;
+        const pulse = (simTime % 2 < pulseW/2) ? (1 - Math.abs((simTime%1)*2 - 1)) : 0;
         y[0] = A * pulse;
       }
 
@@ -322,7 +342,7 @@
       ctx.stroke();
 
       // Draw the wave
-      ctx.strokeStyle = "#38bdf8"; // Bright neon blue
+      ctx.strokeStyle = "#38bdf8"; 
       ctx.lineWidth = 3;
       ctx.lineJoin = "round";
       ctx.beginPath();
@@ -360,6 +380,8 @@
       if (endMode==="fixed") text += " The right end of the string is fixed in place, causing reflection inversion.";
       else if (endMode==="loose") text += " The right end of the string is attached to a loose ring, allowing it to slide vertically.";
       else text += " The right end of the string absorbs the wave, simulating an infinite boundary.";
+
+      if (isSlowMotion) text += " <strong>(Running in Slow Motion)</strong>";
 
       descBox.innerHTML = text;
     }
