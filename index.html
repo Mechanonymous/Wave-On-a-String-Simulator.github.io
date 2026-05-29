@@ -1,447 +1,62 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>Wave on a String Simulation</title>
-  <style>
-    :root {
-      --primary: #0284c7;
-      --primary-hover: #0369a1;
-      --bg-color: #f8fafc;
-      --card-bg: #ffffff;
-      --text-main: #0f172a;
-      --text-muted: #64748b;
-      --accent: #8b5cf6;
-    }
+<meta charset="UTF-8">
+<title>WaveLab Home</title>
 
-    body {
-      font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
-      background: var(--bg-color);
-      color: var(--text-main);
-      margin: 0;
-      padding: 40px 20px;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-    }
+<style>
+body {
+  margin: 0;
+  font-family: Arial, sans-serif;
+  background: #f1f5f9;
+  text-align: center;
+}
 
-    .container {
-      max-width: 900px;
-      width: 100%;
-      background: var(--card-bg);
-      border-radius: 12px;
-      box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
-      padding: 30px;
-      box-sizing: border-box;
-    }
+/* HERO */
+.hero {
+  padding: 100px 20px;
+}
 
-    h2 {
-      text-align: center;
-      margin-top: 0;
-      color: var(--primary);
-      font-size: 2rem;
-    }
+.hero h1 {
+  font-size: 3rem;
+  color: #0284c7;
+}
 
-    .formula-section {
-      background: #f1f5f9;
-      padding: 15px;
-      border-radius: 8px;
-      text-align: center;
-      margin-bottom: 25px;
-      border-left: 4px solid var(--primary);
-    }
+.hero p {
+  color: #64748b;
+  max-width: 500px;
+  margin: 10px auto 30px;
+}
 
-    .formula-section p {
-      margin: 0 0 5px 0;
-      font-weight: 600;
-      color: var(--text-main);
-    }
+/* BUTTON */
+.btn {
+  background: #0284c7;
+  color: white;
+  padding: 15px 30px;
+  text-decoration: none;
+  border-radius: 8px;
+  font-size: 1.2rem;
+  font-weight: bold;
+  transition: 0.3s;
+}
 
-    .equation {
-      font-family: 'Times New Roman', Times, serif;
-      font-size: 1.3rem;
-      font-style: italic;
-      color: #334155;
-      letter-spacing: 1px;
-    }
-
-    canvas {
-      width: 100%;
-      max-width: 840px;
-      height: 200px;
-      border-radius: 8px;
-      background: #1e293b;
-      margin: 0 auto 25px auto;
-      display: block;
-      box-shadow: inset 0 2px 4px 0 rgb(0 0 0 / 0.2);
-      cursor: crosshair;
-    }
-    
-    canvas:active {
-      cursor: grabbing;
-    }
-
-    .button-group {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 10px;
-      justify-content: center;
-      margin-bottom: 25px;
-    }
-
-    button {
-      background: var(--text-muted);
-      color: white;
-      border: none;
-      padding: 10px 20px;
-      border-radius: 6px;
-      cursor: pointer;
-      font-weight: 600;
-      transition: all 0.2s;
-    }
-
-    button:hover {
-      background: #475569;
-    }
-
-    button.active {
-      background: var(--primary);
-      box-shadow: 0 4px 6px -1px rgb(2 132 199 / 0.4);
-    }
-
-    button#resetBtn {
-      background: #ef4444;
-    }
-    button#resetBtn:hover {
-      background: #dc2626;
-    }
-
-    /* Grid Layout for Controls */
-    .controls-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-      gap: 20px;
-      margin-bottom: 25px;
-      background: #f8fafc;
-      padding: 20px;
-      border-radius: 8px;
-      align-items: center; 
-    }
-
-    .control {
-      display: flex;
-      flex-direction: column;
-    }
-
-    .control label {
-      font-weight: 600;
-      margin-bottom: 8px;
-      font-size: 0.9rem;
-      display: flex;
-      justify-content: space-between;
-    }
-
-    .control label span {
-      color: var(--primary);
-    }
-
-    input[type=range] {
-      width: 100%;
-      cursor: pointer;
-    }
-
-    .control.speed-control label span {
-      color: var(--accent);
-    }
-    .control.speed-control input[type=range] {
-      accent-color: var(--accent);
-    }
-
-    #description {
-      font-size: 0.95rem;
-      color: var(--text-muted);
-      text-align: center;
-      line-height: 1.6;
-      padding-top: 20px;
-      border-top: 1px solid #e2e8f0;
-    }
-  </style>
+.btn:hover {
+  background: #0369a1;
+}
+</style>
 </head>
+
 <body>
 
-  <div class="container">
-    <h2>Wave on a String</h2>
-    
-    <div class="formula-section">
-      <p>1D Finite Difference Wave Equation</p>
-      <div class="equation">
-        &part;<sup>2</sup>y / &part;t<sup>2</sup> = c<sup>2</sup> ( &part;<sup>2</sup>y / &part;x<sup>2</sup> )
-      </div>
-    </div>
+<div class="hero">
+  <h1>Wave on a String Simulation</h1>
+  <p>Physics: wave on a string live simulation </p>
 
-    <canvas id="waveCanvas" width="840" height="200"></canvas>
+  <!-- BUTTON TO OPEN SIMULATION -->
+  <a href="simulation.html" class="btn">Description</a>
+  <a href="index.html" class="btn">Start Simulation</a>
+</div>
 
-    <div class="button-group">
-      <button id="manualBtn" class="mode-btn active">Manual Mode</button>
-      <button id="oscBtn" class="mode-btn">Oscillate</button>
-      <button id="pulseBtn" class="mode-btn">Pulse</button>
-      <button id="endBtn">End: Fixed</button>
-      <button id="resetBtn">Restart String</button>
-    </div>
-
-    <div class="controls-grid">
-      <div class="control speed-control">
-        <label>Sim Speed <span id="speedVal">1.0x</span></label>
-        <input type="range" id="speedSlider" min="0.1" max="2.0" value="1.0" step="0.1" />
-      </div>
-      <div class="control">
-        <label>Amplitude <span id="ampVal">20</span></label>
-        <input type="range" id="ampSlider" min="0" max="40" value="20" />
-      </div>
-      <div class="control">
-        <label>Frequency <span id="freqVal">2.0</span></label>
-        <input type="range" id="freqSlider" min="0" max="5" value="2" step="0.1" />
-      </div>
-      <div class="control">
-        <label>Pulse Width <span id="pulseVal">1.5</span></label>
-        <input type="range" id="pulseSlider" min="0" max="3" value="1.5" step="0.1" />
-      </div>
-      
-      <div class="control">
-        <label>Damping <span id="dampVal">0.20</span></label>
-        <input type="range" id="dampSlider" min="0" max="2.0" value="0.2" step="0.05" />
-      </div>
-    </div>
-
-    <div id="description"></div>
-  </div>
-
-  <script>
-    const canvas = document.getElementById("waveCanvas");
-    const ctx = canvas.getContext("2d");
-    const descBox = document.getElementById("description");
-
-    const N = 100; 
-    const dx = canvas.width / (N - 1);
-    const centerY = canvas.height / 2;
-
-    let y = new Array(N).fill(0);
-    let vy = new Array(N).fill(0);
-
-    let mode = "manual"; 
-    let endMode = "fixed"; 
-    let drive = 0;
-    let isDragging = false;
-    let simTime = 0; 
-
-    // UI Elements
-    const speedSlider = document.getElementById("speedSlider");
-    const ampSlider = document.getElementById("ampSlider");
-    const freqSlider = document.getElementById("freqSlider");
-    const pulseSlider = document.getElementById("pulseSlider");
-    const dampSlider = document.getElementById("dampSlider");
-    
-    const speedVal = document.getElementById("speedVal");
-    const ampVal = document.getElementById("ampVal");
-    const freqVal = document.getElementById("freqVal");
-    const pulseVal = document.getElementById("pulseVal");
-    const dampVal = document.getElementById("dampVal");
-
-    const modeBtns = document.querySelectorAll('.mode-btn');
-    const endBtn = document.getElementById("endBtn");
-
-    // Update value labels dynamically
-    const sliders = [speedSlider, ampSlider, freqSlider, pulseSlider, dampSlider];
-    const labels = [speedVal, ampVal, freqVal, pulseVal, dampVal];
-    
-    sliders.forEach((slider, idx) => {
-      slider.addEventListener('input', (e) => {
-        // Ensure damping formatting remains clean with higher limits
-        if (slider.id === "dampSlider") {
-            labels[idx].textContent = parseFloat(e.target.value).toFixed(2);
-        } else {
-            labels[idx].textContent = e.target.value + (idx === 0 ? "x" : ""); 
-        }
-      });
-    });
-
-    // Mode Selection Logic
-    function setActiveMode(id, newMode) {
-      mode = newMode;
-      modeBtns.forEach(btn => btn.classList.remove('active'));
-      document.getElementById(id).classList.add('active');
-    }
-
-    document.getElementById("manualBtn").onclick = () => setActiveMode("manualBtn", "manual");
-    document.getElementById("oscBtn").onclick = () => setActiveMode("oscBtn", "oscillate");
-    document.getElementById("pulseBtn").onclick = () => setActiveMode("pulseBtn", "pulse");
-    
-    document.getElementById("resetBtn").onclick = () => { 
-      y.fill(0); 
-      vy.fill(0); 
-      simTime = 0;
-      drive = 0;
-    };
-
-    endBtn.onclick = () => {
-      endMode = endMode === "fixed" ? "loose" : endMode === "loose" ? "no" : "fixed";
-      endBtn.textContent = "End: " + (endMode.charAt(0).toUpperCase() + endMode.slice(1));
-    };
-
-    // --- Enhanced Mouse Interactions ---
-    function updateDrive(e) {
-      const rect = canvas.getBoundingClientRect();
-      const mouseOffset = e.clientY - rect.top - centerY;
-      // 1:1 Pixel tracking, clamped slightly inside canvas to prevent node disappearance
-      drive = Math.max(-centerY + 10, Math.min(centerY - 10, mouseOffset));
-    }
-
-    canvas.addEventListener("mousedown", e => { 
-      if (mode === "manual") {
-        isDragging = true;
-        updateDrive(e);
-      }
-    });
-    
-    canvas.addEventListener("mousemove", e => {
-      if (mode === "manual" && isDragging) {
-        updateDrive(e);
-      }
-    });
-
-    canvas.addEventListener("mouseup", () => { isDragging = false; });
-    canvas.addEventListener("mouseleave", () => { isDragging = false; });
-    
-    // --- Physics Engine core ---
-    function updateWave() {
-      const speed = parseFloat(speedSlider.value);
-      const A = parseFloat(ampSlider.value);
-      const f = parseFloat(freqSlider.value);
-      const damp = parseFloat(dampSlider.value);
-      const pulseW = parseFloat(pulseSlider.value);
-      
-      const c = 100;
-      const yOld = [...y];
-      
-      const dt = 0.016 * speed; 
-      simTime += dt;
-
-      if (mode === "manual") {
-        if (isDragging) {
-          y[0] = drive;
-          vy[0] = 0; // Hold steady while being dragged
-        } else {
-          // Smoothly settle the driven anchor back to equilibrium based on damping
-          drive *= (1 - Math.min(damp * 0.1 + 0.02, 1)); 
-          y[0] = drive;
-        }
-      } else if (mode === "oscillate") {
-        y[0] = A * Math.sin(2 * Math.PI * f * simTime);
-      } else if (mode === "pulse") {
-        const pulse = (simTime % 2 < pulseW/2) ? (1 - Math.abs((simTime%1)*2 - 1)) : 0;
-        y[0] = A * pulse;
-      }
-
-      // 1D Wave Equation discrete loop
-      for (let i = 1; i < N - 1; i++) {
-        const d2ydx2 = (yOld[i+1] - 2*yOld[i] + yOld[i-1]) / (dx*dx);
-        
-        // NEW: "Weight" factor. This acts as a physical restoring force pulling the node back to its original (0) position.
-        // It scales directly with the user's selected damping value to prevent the string from floating.
-        const weightRestoringForce = damp * 20.0 * yOld[i];
-
-        // Apply string tension (c*c*d2ydx2), velocity friction (- damp*vy[i]), and weight (- weightRestoringForce)
-        const force = c*c*d2ydx2 - damp*vy[i] - weightRestoringForce;
-        
-        vy[i] += force*dt;
-        y[i] += vy[i]*dt;
-      }
-
-      if (endMode === "fixed") {
-        y[N-1] = 0;
-      } else if (endMode === "loose") {
-        y[N-1] = y[N-2];
-      } else if (endMode === "no") {
-        y[N-1] = yOld[N-1] - (c*dt/dx) * (yOld[N-1] - yOld[N-2]);
-      }
-    }
-
-    // Node-Based Rendering
-    function renderWave() {
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-      
-      // Draw equilibrium center line
-      ctx.strokeStyle = "rgba(255, 255, 255, 0.15)";
-      ctx.lineWidth = 1;
-      ctx.beginPath();
-      ctx.moveTo(0, centerY);
-      ctx.lineTo(canvas.width, centerY);
-      ctx.stroke();
-
-      // Draw faint physical string connection
-      ctx.strokeStyle = "rgba(56, 189, 248, 0.3)"; 
-      ctx.lineWidth = 2;
-      ctx.beginPath();
-      for (let i = 0; i < N; i++) {
-        const x = i * dx;
-        const yPoint = centerY + y[i];
-        if (i === 0) ctx.moveTo(x, yPoint);
-        else ctx.lineTo(x, yPoint);
-      }
-      ctx.stroke();
-
-      // Draw the mathematical calculation nodes
-      ctx.fillStyle = "#e0f2fe"; 
-      ctx.strokeStyle = "#0284c7"; 
-      ctx.lineWidth = 1.5;
-
-      for (let i = 0; i < N; i++) {
-        const x = i * dx;
-        const yPoint = centerY + y[i];
-        
-        ctx.beginPath();
-        // Small circles acting as discrete calculation points
-        ctx.arc(x, yPoint, 3.5, 0, Math.PI * 2);
-        ctx.fill();
-        ctx.stroke();
-      }
-    }
-
-    // Dynamic Accessibility/UI Text Generation
-    function updateDescription() {
-      const speed = parseFloat(speedSlider.value);
-      const isStill = y.every(val => Math.abs(val) < 0.1);
-
-      let text = "<strong>Status:</strong> ";
-      
-      if (mode === "manual") {
-        text += "Interact with the left side of the canvas using your mouse. ";
-      } else if (mode === "oscillate") {
-        text += "The oscillator is generating a continuous sinusoidal wave. ";
-      } else {
-        text += "The generator is emitting periodic triangular pulses. ";
-      }
-      
-      text += `The discrete nodes are currently ${isStill ? "at rest" : "in motion"}. `;
-
-      if (endMode === "fixed") text += "The right node is locked, causing waves to invert upon reflection.";
-      else if (endMode === "loose") text += "The right node is attached to a loose sliding ring.";
-      else text += "The right node is mathematically open, simulating an infinite boundary.";
-
-      if (speed !== 1.0) {
-        text += ` <em>(Simulation running at ${speed}x speed)</em>`;
-      }
-
-      descBox.innerHTML = text;
-    }
-
-    function animate() {
-      updateWave();
-      renderWave();
-      updateDescription();
-      requestAnimationFrame(animate);
-    }
-    animate();
-  </script>
 </body>
 </html>
