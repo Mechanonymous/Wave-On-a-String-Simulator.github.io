@@ -1,1 +1,261 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Wave Simulator | Homepage</title>
 
+<style>
+:root {
+  --primary: #0284c7;
+  --primary-hover: #0369a1;
+  --bg-color: #f1f5f9;
+  --card-bg: #ffffff;
+  --text-main: #0f172a;
+  --text-muted: #64748b;
+  --accent: #8b5cf6;
+}
+
+/* ---------- Global ---------- */
+body {
+  font-family: 'Segoe UI', system-ui, sans-serif;
+  margin: 0;
+  background: var(--bg-color);
+  color: var(--text-main);
+}
+
+/* ---------- Navbar ---------- */
+.navbar {
+  background: white;
+  padding: 15px 30px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+}
+
+.navbar h1 {
+  font-size: 1.2rem;
+  color: var(--primary);
+}
+
+.navbar a {
+  text-decoration: none;
+  margin-left: 20px;
+  color: var(--text-muted);
+  font-weight: 500;
+}
+
+/* ---------- Hero ---------- */
+.hero {
+  text-align: center;
+  padding: 60px 20px 30px;
+}
+
+.hero h2 {
+  font-size: 2.5rem;
+  margin-bottom: 10px;
+  color: var(--primary);
+}
+
+.hero p {
+  color: var(--text-muted);
+  max-width: 600px;
+  margin: auto;
+}
+
+/* ---------- Main Container ---------- */
+.container {
+  max-width: 900px;
+  margin: 30px auto;
+  background: var(--card-bg);
+  border-radius: 12px;
+  box-shadow: 0 10px 15px rgba(0,0,0,0.08);
+  padding: 30px;
+}
+
+/* ---------- Simulation Styles ---------- */
+canvas {
+  width: 100%;
+  max-width: 840px;
+  height: 200px;
+  border-radius: 8px;
+  background: #1e293b;
+  display: block;
+  margin: 0 auto 20px;
+}
+
+/* Controls */
+.controls-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 15px;
+  margin-bottom: 20px;
+}
+
+.control label {
+  font-size: 0.8rem;
+  display: flex;
+  justify-content: space-between;
+}
+
+.button-group {
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+button {
+  padding: 8px 15px;
+  border: none;
+  background: #64748b;
+  color: white;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+button.active {
+  background: var(--primary);
+}
+
+#resetBtn {
+  background: #ef4444;
+}
+
+/* Footer */
+footer {
+  text-align: center;
+  padding: 20px;
+  color: var(--text-muted);
+  font-size: 0.85rem;
+}
+</style>
+</head>
+
+<body>
+
+<!-- NAVBAR -->
+<div class="navbar">
+  <h1>WaveLab</h1>
+  <div>
+    <a href="#">Home</a>
+    <a href="#">Simulation</a>
+    <a href="#">About</a>
+  </div>
+</div>
+
+<!-- HERO -->
+<section class="hero">
+  <h2>Wave on a String Simulator</h2>
+  <p>Explore how waves move, reflect, and behave in real-time using an interactive physics simulation.</p>
+</section>
+
+<!-- MAIN CONTENT -->
+<div class="container">
+
+  <canvas id="waveCanvas" width="840" height="200"></canvas>
+
+  <div class="button-group">
+    <button id="manualBtn" class="mode-btn active">Manual</button>
+    <button id="oscBtn" class="mode-btn">Oscillate</button>
+    <button id="pulseBtn" class="mode-btn">Pulse</button>
+    <button id="endBtn">End: Fixed</button>
+    <button id="resetBtn">Reset</button>
+  </div>
+
+  <div class="controls-grid">
+    <div class="control">
+      <label>Speed <span id="speedVal">1</span></label>
+      <input type="range" id="speedSlider" min="0.1" max="2" step="0.1" value="1">
+    </div>
+    <div class="control">
+      <label>Amplitude <span id="ampVal">20</span></label>
+      <input type="range" id="ampSlider" min="0" max="40" value="20">
+    </div>
+  </div>
+
+  <div id="description" style="text-align:center;"></div>
+
+</div>
+
+<footer>
+  © 2026 WaveLab Simulation | Physics Interactive Tool
+</footer>
+
+<script>
+// (Same simulation logic — trimmed only minor parts for homepage simplicity)
+
+const canvas = document.getElementById("waveCanvas");
+const ctx = canvas.getContext("2d");
+
+const N = 200;
+const dx = canvas.width / (N - 1);
+const centerY = canvas.height / 2;
+
+let y = new Array(N).fill(0);
+let vy = new Array(N).fill(0);
+
+let mode = "manual";
+let endMode = "fixed";
+let simTime = 0;
+
+// Sliders
+const speedSlider = document.getElementById("speedSlider");
+const ampSlider = document.getElementById("ampSlider");
+
+// Mode buttons
+document.getElementById("manualBtn").onclick = () => mode="manual";
+document.getElementById("oscBtn").onclick = () => mode="oscillate";
+document.getElementById("pulseBtn").onclick = () => mode="pulse";
+
+document.getElementById("resetBtn").onclick = () => {
+  y.fill(0); vy.fill(0); simTime = 0;
+};
+
+function updateWave() {
+  const speed = parseFloat(speedSlider.value);
+  const A = parseFloat(ampSlider.value);
+
+  const dt = 0.016 * speed;
+  simTime += dt;
+
+  if (mode === "oscillate") {
+    y[0] = A * Math.sin(simTime * 5);
+  } else if (mode === "pulse") {
+    y[0] = Math.random() * A;
+  }
+
+  const yOld = [...y];
+
+  for (let i=1;i<N-1;i++){
+    const d2 = (yOld[i+1]-2*yOld[i]+yOld[i-1])/(dx*dx);
+    vy[i] += d2*dt*100;
+    y[i] += vy[i]*dt;
+  }
+
+  y[N-1] = 0;
+}
+
+function draw() {
+  ctx.clearRect(0,0,canvas.width,canvas.height);
+  ctx.beginPath();
+  ctx.strokeStyle="#38bdf8";
+
+  for(let i=0;i<N;i++){
+    const x=i*dx;
+    const yp=centerY+y[i];
+    i===0 ? ctx.moveTo(x,yp) : ctx.lineTo(x,yp);
+  }
+  ctx.stroke();
+}
+
+function animate(){
+  updateWave();
+  draw();
+  requestAnimationFrame(animate);
+}
+
+animate();
+</script>
+
+</body>
+</html>
+``
