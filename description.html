@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -6,17 +5,20 @@
 <title>Description</title>
 
 <style>
-
 body {
   margin: 0;
   font-family: Arial, sans-serif;
   background: #f1f5f9;
   text-align: center;
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
 }
 
 h1 {
   font-size: 2.5rem;
   color: #0284c7;
+  margin-bottom: 40px
 }
 
 p {
@@ -29,31 +31,59 @@ p {
 .btn {
   background: #0284c7;
   color: white;
-  padding: 12px 25px;
+  padding: 5px 10px;
   text-decoration: none;
-  border-radius: 8px;
-  display: inline-block;
-  margin-top: 20px;
+  border-radius: 5px;
+  font-size: 1.0rem;
+  font-weight: bold;
+  transition: 0.3s;
+
+  position: absolute; 
+  top: 50px;          
+  left: 60px;         
 }
+
 </style>
 </head>
 
 <body>
 
-<h1>About the Simulation</h1>
+<div class="container">
+  <h1>About the Simulation</h1>
 
-<p>
-This simulation demonstrates how waves move along a string using the classical wave equation.
-Users can explore how amplitude, frequency, and damping affect wave motion in real time.
-</p>
+  <p>
+    This interactive simulation demonstrates the behavior of a transverse wave traveling along a string, 
+    based on the fundamental principles of the wave equation. Users can visualize how disturbances 
+    propagate through a medium, where each point on the string oscillates while energy travels along its 
+    length.
+  </p>
 
-<p>
-The wave reflects differently depending on boundary conditions such as fixed ends or loose ends,
-helping visualize real physics concepts used in engineering and science.
-</p>
+  <p>
+    The simulation models the relationship between displacement, time, and position using the wave function 
+    y(x,t), allowing users to observe how waves form, move, and interact. By adjusting parameters 
+    such as amplitude, frequency, pulse width, and damping, users can explore how different conditions affect 
+    wave motion.
+  </p>
 
-<!-- BACK BUTTON -->
-index.html⬅ Back to Home</a>
+  <p>
+    It also includes boundary conditions such as a fixed end, where waves reflect and invert, demonstrating 
+    real physical behavior. As waves travel and overlap, the simulation showcases interference patterns, 
+    illustrating both constructive and destructive superposition. Over time, these interactions can form 
+    standing waves, with visible nodes and antinodes.
+  </p>
+
+  <p>
+    This tool provides a dynamic way to understand how waves carry energy without transporting matter, and how 
+    properties like tension and mass influence wave behavior. The simulation is inspired by the interactive 
+    learning tools developed by PhET Interactive Simulations.  
+  </p>
+
+
+
+</div>
+<!-- BUTTON TO OPEN SIMULATION -->
+  <a href="DEMO.html" class="btn">&#8592;</a>
+</div>
 
 </body>
 </html>
