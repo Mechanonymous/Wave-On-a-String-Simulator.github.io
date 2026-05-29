@@ -1,7 +1,7 @@
 body {
   margin: 0;
   font-family: system-ui, -apple-system, "Segoe UI", Roboto, Arial;
-  background-image: url('waves.jpg'); /* replace with your image path */
+  background-image: url('./waves.jpg'); /* replace with your image path */
   background-size: cover;             /* fill the viewport */
   background-position: center;        /* center the image */
   background-repeat: no-repeat;       /* no tiling */
@@ -27,7 +27,7 @@ canvas {
   font-size: 1.2rem;
   font-weight: bold;
   transition: 0.3s;
-  position: center; /* pin to upper left */
+  position: absolute; /* pin to upper left */
   top: 20px;
   left: 20px;
 }
