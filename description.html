@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -13,12 +14,22 @@ body {
   display: flex;
   flex-direction: column;
   min-height: 100vh;
+  justify-content: center;   /* center vertically */
+  align-items: center;       /* center horizontally */
+}
+
+.container {
+  max-width: 800px;
+  margin: 80px auto;
+  padding: 20px;
+  background: rgba(0, 0, 0, 0.5);  /* optional background */
+  border-radius: 15px;
 }
 
 h1 {
   font-size: 3.5rem;
   color: #0284c7;
-  margin-bottom: 40px
+  margin-bottom: 40px;
 }
 
 p {
@@ -43,7 +54,6 @@ p {
   top: 50px;          
   left: 60px;         
 }
-
 </style>
 </head>
 
@@ -80,14 +90,13 @@ p {
     learning tools developed by PhET Interactive Simulations.  
   </p>
 
-   <p>
+  <p>
     https://phet.colorado.edu/en/simulation/wave-on-a-string
-   </p>
+  </p>
+</div>
 
-</div>
-<!-- BUTTON TO OPEN SIMULATION -->
-  <a href="index.html" class="btn">&#8592;</a>
-</div>
+<!-- BUTTON -->
+<a href="index.html" class="btn">&#8592;</a>
 
 </body>
 </html>
