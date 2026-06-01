@@ -5,7 +5,8 @@ body {
   text-align: center;
   position: relative; 
   min-height: 100vh;
-  overflow: hidden;
+  display: block;
+  overflow-y: auto;
 }
 
 /* Blurred background layer */
