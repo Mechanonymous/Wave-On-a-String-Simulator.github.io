@@ -4,8 +4,8 @@ body {
   color: white;
   text-align: center;
   position: relative; 
-  min-height: 100vh;
-  display: block;
+  min-height: 100%;       /* allow body to grow with content */
+  height: auto; 
   overflow-y: auto;
 }
 
